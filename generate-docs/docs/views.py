@@ -2,6 +2,7 @@
 
 
 import ast
+import json
 
 def extract_variables(code):
     variables = []
@@ -70,19 +71,26 @@ def generate_basic_documentation(code):
 
 
 from django.http import JsonResponse
+from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 import json
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
 @csrf_exempt  # Remove this decorator if you want to handle CSRF protection differently
-@api_view(['POST'])
+@api_view(['POST','GET'])
 def generate_documentation(request):
-    try:
-        data = json.loads(request.body)
-        python_code = data.get('python_code', '')
-        documentation = generate_basic_documentation(python_code)
-        return Response({'documentation': documentation})
-    except Exception as e:
-        return Response({'error': str(e)}, status=400)
+    if request.method == "POST":
+        # print("called")
+        try:
+            # print(json.dumps(request.data.get('python_code')))
+            # data = json.loads(request.body)
+            # print(data)
+            # python_code = data.get('python_code', '')
+            documentation = generate_basic_documentation(request.data.get('python_code'))
+            return Response({'documentation': documentation})
+        except Exception as e:
+            return Response({'error': str(e)}, status=400)
+    else:
+        return render(request, 'index.html')
 
